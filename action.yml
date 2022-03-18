@@ -23,13 +23,9 @@ inputs:
     required: false
     default: https://mcr.microsoft.com
 outputs:
-  tags:
+  images:
     description: >
-      A comma-separated list of all image tags that have changed in the specified time frame, sorted by date in 
-      ascending order (oldest first)
-  image:
-    description: >
-      The image 
+      A stringified array of images
 runs:
   using: node16
   main: dist/index.js

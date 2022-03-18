@@ -4443,14 +4443,17 @@ function limitVersions(tags, versionLimit) {
 
 
 
-let repoUrl, index_image, regex, versionLimit;
+let repoUrl, index_images, regex, versionLimit;
+let imageArray = [];
+let outputImages = [];
+let promises = [];
 try {
-  repoUrl = core.getInput("repo-url");
-  index_image = core.getInput("image");
-  regex = new RegExp(core.getInput("tag-regex"));
-  versionLimit = core.getInput("version-limit");
+  repoUrl = core.getInput('repo-url');
+  index_images = core.getInput('images');
+  regex = new RegExp(core.getInput('tag-regex'));
+  versionLimit = core.getInput('version-limit');
 } catch (err) {
-  const msg = "Failed to initialize action: " + err.message;
+  const msg = 'Failed to initialize action: ' + err.message;
   core.setFailed(msg);
   console.error(msg);
   console.error(err);
@@ -4458,30 +4461,49 @@ try {
 }
 
 const processResponse = (res) => {
-    if (res.status < 400) {
-        return res.json();
-    } else {
-        throw new Error(
-            `Response from server: '${res.statusText}' (${res.status}) for URL ${res.url}`
-        );
-    }
+  if (res.status < 400) {
+    return res.json();
+  } else {
+    throw new Error(
+      `Response from server: '${res.statusText}' (${res.status}) for URL ${res.url}`
+    );
+  }
 };
 
-lib(`${repoUrl}/v2/${index_image}/tags/list`)
-.then(response => processResponse(response))
-.then(json => {
-  let { tags } = json;
-  let filteredTags = tags.filter(tag => regex.test(tag));
-  let limitedTags = limitVersions(filteredTags, versionLimit);
-  core.setOutput("tags", limitedTags);
-})
-.catch(err => {
-  const msg = "Failed to scan Docker repository: " + err.message;
-  core.setFailed(msg);
-  console.error(msg);
-  console.error(err);
-  process.exit(1);
+try {
+  imageArray = JSON.parse(index_images);
+} catch (err) {
+  imageArray.push(index_images);
+}
+
+
+imageArray.forEach((image) => {
+  promises.push(
+    lib(`${repoUrl}/v2/${image}/tags/list`)
+      .then((response) => processResponse(response))
+      .then((json) => {
+        let { tags } = json;
+        let filteredTags = tags.filter(tag => regex.test(tag));
+        let limitedTags = limitVersions(filteredTags, versionLimit);
+        let fullNames = limitedTags.map((tag) => `${image}:${tag}`);
+        outputImages.push(...fullNames);
+      })
+      .catch((err) => {
+        const msg = 'Failed to scan Docker repository: ' + err.message;
+        core.setFailed(msg);
+        console.error(msg);
+        console.error(err);
+        process.exit(1);
+      })
+  )
 });
+
+Promise.all(promises).then(() => {
+  console.log(`Images discovered:\n${outputImages.join('\n')}`);
+  core.setOutput('images', outputImages);
+});
+
+
 
 })();
 

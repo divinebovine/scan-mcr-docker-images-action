@@ -1,14 +1,13 @@
 {
-    "name": "scan-docker-tags-action",
-    "version": "1.0.1",
-    "description": "A GitHub action for scanning Docker repositories for recently-updated tags",
+    "name": "scan-mcr-docker-images-action",
+    "version": "0.1.1",
+    "description": "A GitHub action for scanning MCR Docker repositories for tags",
     "main": "index.js",
     "type": "module",
     "author": "",
     "license": "MIT",
     "scripts": {
-      "build": "ncc build index.js --license licenses.txt",
-      "test": "node test.js"
+      "build": "ncc build index.js --license licenses.txt -o dist"
     },
     "dependencies": {
         "@actions/core": "^1.2.6",
