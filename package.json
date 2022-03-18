@@ -1,0 +1,26 @@
+{
+    "name": "scan-docker-tags-action",
+    "version": "1.0.1",
+    "description": "A GitHub action for scanning Docker repositories for recently-updated tags",
+    "main": "index.js",
+    "type": "module",
+    "author": "",
+    "license": "MIT",
+    "scripts": {
+      "build": "ncc build index.js --license licenses.txt",
+      "test": "node test.js"
+    },
+    "dependencies": {
+        "@actions/core": "^1.2.6",
+        "node-fetch": "^2.6.1"
+    },
+    "devDependencies": {
+        "@vercel/ncc": "0.33.3",
+        "husky": "^4.2.5"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run build && git add dist"
+        }
+    }
+}

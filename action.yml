@@ -1,0 +1,38 @@
+name: Scan MCR Docker Tags
+description: Scan the MCR Docker repository for recently-updated tags
+inputs:
+  images:
+    description: >
+      A docker image or an array of docker images to scan (sans tags),
+      e.g. `dotnet/sdk` or `["dotnet/sdk", "dotnet/runtime", "dotnet/aspnet"]`.
+    required: true
+  tag-regex:
+    description: >
+      An optional regular expression for filtering tags. E.g. `\d+\.\d+$` matches 
+      semver, `latest` matches only the "latest" tag
+    required: false
+    default: '.*'
+  version-limit: 
+    description: >
+      An optional limit to filter tags by major version. E.g. '*' will return all tags,
+      3 will return the last 3 major versions starting from the latest major release
+    required: false
+    default: '*'
+  repo-url:
+    description: The URL of the Docker registry. Defaults to MCR (https://mcr.microsoft.com/)
+    required: false
+    default: https://mcr.microsoft.com
+outputs:
+  tags:
+    description: >
+      A comma-separated list of all image tags that have changed in the specified time frame, sorted by date in 
+      ascending order (oldest first)
+  image:
+    description: >
+      The image 
+runs:
+  using: node16
+  main: dist/index.js
+branding:
+  icon: refresh-cw
+  color: blue
