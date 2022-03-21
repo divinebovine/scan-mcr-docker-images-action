@@ -20,7 +20,7 @@ jobs:
     name: List Recent Updates
     runs-on: ubuntu-latest
     outputs: 
-      tags: ${{ steps.scan.outputs.tags }}
+      images: ${{ steps.scan.outputs.images }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tags: ${{ fromJson(needs.scan.outputs.tags) }}
+        image: ${{ fromJson(needs.scan.outputs.images) }}
     steps:
       - name: Test
-        run : echo dotnet:${{matrix.tags}}
+        run : echo dotnet:${{matrix.image}}
 ```
 
 ## Required Inputs
@@ -57,5 +57,5 @@ jobs:
 
 
 ## Outputs
-The only output this action exposes is the `tags` output. `tags` is a comma-separated list of all image tags that have 
-changed in the specified time frame. The list is sorted by date in ascending order. E.g. `v1.0.7,v1.0.8,latest`.
+The only output this action exposes is the `images` output. `images` is a comma-separated list of all image tags that match the
+regular expression and are limited by the version limit.
